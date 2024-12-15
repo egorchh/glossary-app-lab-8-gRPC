@@ -9,11 +9,9 @@ from database import init_db
 def serve():
     server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
     
-    # Добавляем сервис
     service = GlossaryService()
     glossary_pb2_grpc.add_GlossaryServiceServicer_to_server(service, server)
     
-    # Настраиваем reflection API
     SERVICE_NAMES = (
         glossary_pb2.DESCRIPTOR.services_by_name['GlossaryService'].full_name,
         reflection.SERVICE_NAME,
