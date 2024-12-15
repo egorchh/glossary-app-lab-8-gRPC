@@ -24,7 +24,7 @@ class GlossaryService(glossary_pb2_grpc.GlossaryServiceServicer):
         with SessionLocal() as db:
             term = db.query(Term).filter(Term.term == request.term).first()
             if not term:
-                context.abort(grpc.StatusCode.NOT_FOUND, 'Term not found')
+                context.abort(grpc.StatusCode.NOT_FOUND, 'Термин не найден')
             
             return glossary_pb2.Term(
                 id=term.id,
@@ -35,7 +35,7 @@ class GlossaryService(glossary_pb2_grpc.GlossaryServiceServicer):
     def CreateTerm(self, request, context):
         with SessionLocal() as db:
             if db.query(Term).filter(Term.term == request.term).first():
-                context.abort(grpc.StatusCode.ALREADY_EXISTS, 'Term already exists')
+                context.abort(grpc.StatusCode.ALREADY_EXISTS, 'Термин уже существует')
             
             term = Term(term=request.term, description=request.description)
             db.add(term)
@@ -46,6 +46,36 @@ class GlossaryService(glossary_pb2_grpc.GlossaryServiceServicer):
                 id=term.id,
                 term=term.term,
                 description=term.description
+            )
+    
+    def UpdateTerm(self, request, context):
+        with SessionLocal() as db:
+            term = db.query(Term).filter(Term.term == request.term).first()
+            if not term:
+                context.abort(grpc.StatusCode.NOT_FOUND, 'Термин не найден')
+            
+            term.description = request.description
+            db.commit()
+            db.refresh(term)
+            
+            return glossary_pb2.Term(
+                id=term.id,
+                term=term.term,
+                description=term.description
+            )
+    
+    def DeleteTerm(self, request, context):
+        with SessionLocal() as db:
+            term = db.query(Term).filter(Term.term == request.term).first()
+            if not term:
+                context.abort(grpc.StatusCode.NOT_FOUND, 'Термин не найден')
+            
+            db.delete(term)
+            db.commit()
+            
+            return glossary_pb2.DeleteTermResponse(
+                success=True,
+                message='Термин успешно удален'
             )
     
     def SearchTerms(self, request, context):

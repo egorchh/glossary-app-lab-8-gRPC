@@ -11,11 +11,6 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-# Генерация Python кода из proto файлов
-RUN python -m grpc_tools.protoc \
-    -I./proto \
-    --python_out=./generated \
-    --grpc_python_out=./generated \
-    proto/glossary.proto
+ENV PYTHONPATH=/app
 
 CMD ["python", "server/main.py"]
