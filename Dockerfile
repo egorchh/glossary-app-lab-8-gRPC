@@ -2,13 +2,20 @@ FROM python:3.9-slim
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y sqlite3 && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && \
+    apt-get install -y protobuf-compiler && \
+    rm -rf /var/lib/apt/lists/*
 
 COPY requirements.txt .
 RUN pip install --no-cache-dir -r requirements.txt
 
 COPY . .
 
-RUN mkdir -p data
+# Генерация Python кода из proto файлов
+RUN python -m grpc_tools.protoc \
+    -I./proto \
+    --python_out=./generated \
+    --grpc_python_out=./generated \
+    proto/glossary.proto
 
-CMD ["uvicorn", "src.main:app", "--host", "0.0.0.0", "--port", "8000"]
+CMD ["python", "server/main.py"]

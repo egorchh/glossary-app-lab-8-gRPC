@@ -37,3 +37,6 @@ ENV/
 
 # Logs
 *.log
+
+# gRPC generated files
+generated/

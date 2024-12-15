@@ -1,17 +1,10 @@
 version: '3.8'
 
 services:
-  web:
+  grpc-server:
     build: .
     ports:
-      - "8000:8000"
+      - "50051:50051"
     volumes:
-      - ./src:/app/src
       - ./data:/app/data
-
-volumes:
-  postgres_data:
-
-networks:
-  glossary-network:
-    driver: bridge 
+      - ./server:/app/server
